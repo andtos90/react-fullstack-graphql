@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react'
-import Post from '../components/Post'
-import { Query } from 'react-apollo'
-import gql from 'graphql-tag'
+import React, { Component, Fragment } from "react";
+import Post from "../components/Post";
+import { Query } from "react-apollo";
+import gql from "graphql-tag";
 
 export default class DraftsPage extends Component {
   render() {
@@ -13,7 +13,7 @@ export default class DraftsPage extends Component {
               <div className="flex w-100 h-100 items-center justify-center pt7">
                 <div>Loading ...</div>
               </div>
-            )
+            );
           }
 
           if (error) {
@@ -21,7 +21,7 @@ export default class DraftsPage extends Component {
               <div className="flex w-100 h-100 items-center justify-center pt7">
                 <div>An unexpected error occured.</div>
               </div>
-            )
+            );
           }
           return (
             <Fragment>
@@ -31,7 +31,7 @@ export default class DraftsPage extends Component {
               {data.drafts &&
                 data.drafts.map(draft => (
                   <Post
-                    key={draft.id}
+                    key={draft._id}
                     post={draft}
                     refresh={() => refetch()}
                     isDraft={!draft.isPublished}
@@ -39,20 +39,20 @@ export default class DraftsPage extends Component {
                 ))}
               {this.props.children}
             </Fragment>
-          )
+          );
         }}
       </Query>
-    )
+    );
   }
 }
 
 export const DRAFTS_QUERY = gql`
   query DraftsQuery {
     drafts {
-      id
+      _id
       text
       title
       isPublished
     }
   }
-`
+`;

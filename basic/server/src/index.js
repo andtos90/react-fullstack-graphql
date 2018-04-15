@@ -1,52 +1,26 @@
-const { GraphQLServer } = require('graphql-yoga')
-const { Prisma } = require('prisma-binding')
+const { GraphQLServer } = require("graphql-yoga");
 
-const resolvers = {
-  Query: {
-    feed(parent, args, ctx, info) {
-      return ctx.db.query.posts({ where: { isPublished: true } }, info)
-    },
-    drafts(parent, args, ctx, info) {
-      return ctx.db.query.posts({ where: { isPublished: false } }, info)
-    },
-    post(parent, { id }, ctx, info) {
-      return ctx.db.query.post({ where: { id: id } }, info)
-    },
-  },
-  Mutation: {
-    createDraft(parent, { title, text }, ctx, info) {
-      return ctx.db.mutation.createPost(
-        { data: { title, text, isPublished: false } },
-        info,
-      )
-    },
-    deletePost(parent, { id }, ctx, info) {
-      return ctx.db.mutation.deletePost({where: { id } }, info)
-    },
-    publish(parent, { id }, ctx, info) {
-      return ctx.db.mutation.updatePost(
-        {
-          where: { id },
-          data: { isPublished: true },
-        },
-        info,
-      )
-    },
-  },
-}
+const { connectToDB } = require("./db/connection");
+const dbSchema = require("./db/schema");
+const gqSchema = require("./graphql/schema");
 
 const server = new GraphQLServer({
-  typeDefs: './src/schema.graphql',
-  resolvers,
+  schema: gqSchema,
   context: req => ({
     ...req,
-    db: new Prisma({
-      typeDefs: 'src/generated/prisma.graphql',
-      endpoint: '__PRISMA_ENDPOINT__',
-      secret: 'mysecret123',
-      debug: true,
-    }),
-  }),
-})
+    db: dbSchema
+  })
+});
 
-server.start(() => console.log('Server is running on http://localhost:4000'))
+const dbConnectAndStartServer = (async () => {
+  try {
+    await connectToDB();
+    console.log("Connected to Mongo successfully");
+    server.start(() =>
+      console.log(`The server is running on http://localhost:4000`)
+    );
+  } catch (err) {
+    console.error(`Error connecting to mongo - ${err.message}`);
+    process.exit(1);
+  }
+})();

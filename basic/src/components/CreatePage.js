@@ -1,25 +1,25 @@
-import React, { Component } from 'react'
-import { withRouter } from 'react-router-dom'
-import { Mutation } from 'react-apollo'
-import gql from 'graphql-tag'
-import { DRAFTS_QUERY } from './DraftsPage'
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { Mutation } from "react-apollo";
+import gql from "graphql-tag";
+import { DRAFTS_QUERY } from "./DraftsPage";
 
 class CreatePage extends Component {
   state = {
-    title: '',
-    text: '',
-  }
+    title: "",
+    text: ""
+  };
 
   render() {
     return (
       <Mutation
         mutation={CREATE_DRAFT_MUTATION}
         update={(cache, { data }) => {
-          const { drafts } = cache.readQuery({ query: DRAFTS_QUERY })
+          const { drafts } = cache.readQuery({ query: DRAFTS_QUERY });
           cache.writeQuery({
             query: DRAFTS_QUERY,
-            data: { drafts: drafts.concat([data.createDraft]) },
-          })
+            data: { drafts: drafts.concat([data.postCreate.record]) }
+          });
         }}
       >
         {(createDraft, { data, loading, error }) => {
@@ -27,12 +27,12 @@ class CreatePage extends Component {
             <div className="pa4 flex justify-center bg-white">
               <form
                 onSubmit={async e => {
-                  e.preventDefault()
-                  const { title, text } = this.state
+                  e.preventDefault();
+                  const { title, text } = this.state;
                   await createDraft({
-                    variables: { title, text },
-                  })
-                  this.props.history.replace('/drafts')
+                    variables: { title, text }
+                  });
+                  this.props.history.replace("/drafts");
                 }}
               >
                 <h1>Create Draft</h1>
@@ -55,7 +55,7 @@ class CreatePage extends Component {
                 <input
                   className={`pa3 bg-black-10 bn ${this.state.text &&
                     this.state.title &&
-                    'dim pointer'}`}
+                    "dim pointer"}`}
                   disabled={!this.state.text || !this.state.title}
                   type="submit"
                   value="Create"
@@ -65,22 +65,24 @@ class CreatePage extends Component {
                 </a>
               </form>
             </div>
-          )
+          );
         }}
       </Mutation>
-    )
+    );
   }
-
 }
 
 const CREATE_DRAFT_MUTATION = gql`
   mutation CreateDraftMutation($title: String!, $text: String!) {
-    createDraft(title: $title, text: $text) {
-      id
-      title
-      text
+    postCreate(record: { title: $title, text: $text, isPublished: false }) {
+      recordId
+      record {
+        _id
+        title
+        text
+      }
     }
   }
-`
+`;
 
-export default withRouter(CreatePage)
+export default withRouter(CreatePage);

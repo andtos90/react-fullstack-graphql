@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from 'react'
-import Post from '../components/Post'
-import { Query } from 'react-apollo'
-import gql from 'graphql-tag'
+import React, { Component, Fragment } from "react";
+import Post from "../components/Post";
+import { Query } from "react-apollo";
+import gql from "graphql-tag";
 
 export default class FeedPage extends Component {
   render() {
@@ -13,7 +13,7 @@ export default class FeedPage extends Component {
               <div className="flex w-100 h-100 items-center justify-center pt7">
                 <div>Loading ...</div>
               </div>
-            )
+            );
           }
 
           if (error) {
@@ -21,7 +21,7 @@ export default class FeedPage extends Component {
               <div className="flex w-100 h-100 items-center justify-center pt7">
                 <div>An unexpected error occured.</div>
               </div>
-            )
+            );
           }
 
           return (
@@ -30,7 +30,7 @@ export default class FeedPage extends Component {
               {data.feed &&
                 data.feed.map(post => (
                   <Post
-                    key={post.id}
+                    key={post._id}
                     post={post}
                     refresh={() => refetch()}
                     isDraft={!post.isPublished}
@@ -38,20 +38,20 @@ export default class FeedPage extends Component {
                 ))}
               {this.props.children}
             </Fragment>
-          )
+          );
         }}
       </Query>
-    )
+    );
   }
 }
 
 export const FEED_QUERY = gql`
   query FeedQuery {
     feed {
-      id
+      _id
       text
       title
       isPublished
     }
   }
-`
+`;
