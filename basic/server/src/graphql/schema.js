@@ -58,7 +58,7 @@ schemaComposer.rootMutation().addFields({
       if (post) {
         return {
           record: post,
-          recordId: post._id //TODO: is it the same as in compose-mongoose?
+          recordId: post._id
         };
       }
 
