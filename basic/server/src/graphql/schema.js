@@ -5,7 +5,9 @@ const {
 const { schemaComposer, Resolver } = require("graphql-compose");
 
 const dbSchema = require("../db/schema");
+const authMutation = require("./mutation/auth");
 
+const UserTC = composeWithMongoose(dbSchema.User);
 const PostTC = composeWithMongoose(dbSchema.Post);
 
 schemaComposer.rootQuery().addFields({
@@ -29,6 +31,61 @@ schemaComposer.rootQuery().addFields({
       const posts = await context.db.Post.find({ isPublished: false }).exec();
       return posts;
     }
+  })
+});
+
+schemaComposer.rootMutation().addFields({
+  signup: new Resolver({
+    name: "signup",
+    type: schemaComposer.getOrCreateTC("RegisteredUser", t => {
+      t.addFields({
+        token: {
+          name: "token",
+          type: "String"
+        },
+        user: {
+          name: "user",
+          type: UserTC
+        }
+      });
+    }),
+    args: {
+      email: {
+        name: "email",
+        type: "String"
+      },
+      password: {
+        name: "password",
+        type: "String"
+      }
+    },
+    resolve: authMutation.signup
+  }),
+  login: new Resolver({
+    name: "login",
+    type: schemaComposer.getOrCreateTC("RegisteredUser", t => {
+      t.addFields({
+        token: {
+          name: "token",
+          type: "String"
+        },
+        user: {
+          name: "user",
+          type: UserTC
+        }
+      });
+    }),
+    args: {
+      email: {
+        name: "email",
+        type: "String"
+      },
+      password: {
+        name: "password",
+        type: "String"
+      }
+    },
+    resolve: authMutation.login
   })
 });
 
